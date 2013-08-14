@@ -2,6 +2,7 @@ package au.edu.unimelb.csse.trollsvsgoats.core.model.units;
 
 import au.edu.unimelb.csse.trollsvsgoats.core.model.Animation;
 import au.edu.unimelb.csse.trollsvsgoats.core.model.Square;
+import au.edu.unimelb.csse.trollsvsgoats.core.view.LevelScreenEx;
 import playn.core.Image;
 import tripleplay.ui.Button;
 import tripleplay.ui.Group;
@@ -13,6 +14,8 @@ public abstract class Unit {
         MOVING, PUSHING, REMOVED, BLOCKED, JUMPING
     };
 
+    private float oldX = 0; //->
+    
     // An unit has a reference to its front and back unit.
     private Unit front;
     private Unit back;
@@ -25,7 +28,7 @@ public abstract class Unit {
 
     // Controls the moving of the unit.
     private float moveDelay;
-    private float timer;
+    //--> private float timer;
 
     Animation moveAnimation;
     Animation pushAnimation;
@@ -34,8 +37,12 @@ public abstract class Unit {
     private Button widget;
     private Square square;
     private State state;
-    private boolean moved;
+    //--> private boolean moved;
+    private float tempNewX;
+    
     protected Group parent;
+    protected boolean canMove = false;
+    protected float moveDelta = -1;
 
     public Unit() {
         init();
@@ -62,14 +69,15 @@ public abstract class Unit {
     public void setSpeed(float speed) {
         this.speed = speed;
         moveDelay = movementTime * 1000 / speed;
-        timer = moveDelay;
+        //--> timer = moveDelay;
+        this.moveDelta = -1;
         if (moveAnimation != null)
             moveAnimation.setFrameTime(frameTime());
     }
 
-    public void setTimer(float timer) {
-        this.timer = timer;
-    }
+    //--> public void setTimer(float timer) {
+  //-->     this.timer = timer;
+  //--> }
 
     public float force() {
         return this.force;
@@ -92,20 +100,26 @@ public abstract class Unit {
 
     public void setSquare(Square square) {
         this.square = square;
+        tempNewX = square.getX(); 
+        canMove = false;
     }
 
     public void move(Square square) {
-        this.moved = true;
+        //--> this.moved = true;
         setSquare(square);
+    }
+    
+    public boolean canMove() {
+    	return this.canMove;
     }
 
     public Square square() {
         return this.square;
     }
 
-    public float timer() {
-        return this.timer;
-    }
+    //--> public float timer() {
+  //-->     return this.timer;
+  //--> }
 
     public float frameTime() {
         return 100 / this.speed;
@@ -114,8 +128,9 @@ public abstract class Unit {
     /** Reset this unit to initial state. */
     public void reset() {
         init();
-        this.moved = false;
-        this.timer = moveDelay;
+        //--> this.moved = false;
+      //--> this.timer = moveDelay;
+        this.moveDelta = -1;
         this.front = null;
         this.back = null;
         widget.layer.setVisible(true);
@@ -124,13 +139,26 @@ public abstract class Unit {
                 .at(widget(), square().getX(), square().getY()));
     }
 
-    public float updateTimer(float delta) {
-        if (timer <= 0 && moved) {
-            timer = moveDelay;
-            moved = false;
+    //--> public float updateTimer(float delta) {
+  //-->     if (timer <= 0 && moved) {
+  //-->          timer = moveDelay;
+  //-->           moved = false;
+    
+    public boolean updatePosition(float timeDelta) { 
+    	
+    	if (this.moveDelta == -1) {
+    		this.moveDelta = LevelScreenEx.SQUARE_WIDTH / (this.moveDelay / timeDelta); 
         }
-        timer -= delta;
-        return timer;
+    	
+    	tempNewX = tempNewX + (this instanceof Troll ? this.moveDelta : - this.moveDelta); 
+    	float previousX = square.getX();
+    	if (Math.abs(tempNewX - previousX) >= LevelScreenEx.SQUARE_WIDTH) { 
+    		canMove = true; 
+    	}else { 
+    		parent.add(AbsoluteLayout.at(widget(), tempNewX, square().getY())); 
+    	}
+    	
+    	return canMove; 
     }
 
     public void setMoveAnimation(Animation animation) {
@@ -200,8 +228,31 @@ public abstract class Unit {
         return "";
     }
 
-    public abstract void update(float delta);
+    //--> public abstract void update(float delta);
+    public void update(float delta) {
+        if (state() == null || state().equals(State.REMOVED)
+                || this.speed() == 0)
+            return;
+        if (canMove)
+            parent.add(AbsoluteLayout.at(widget(), square().getX(), square()
+                    .getY()));
+        if (state().equals(State.MOVING))
+            widget().icon.update(Icons.image(moveAnimation.nextFrame(delta)));
+        else if (state().equals(State.PUSHING)) {
+            if (pushAnimation != null)
+                widget().icon.update(Icons.image(pushAnimation.nextFrame(delta)));
+        }
+    } 
 
     public abstract String type();
 
+	public float getOldX() {
+		return oldX;
+	}
+
+	public void setOldX(float oldX) {
+		this.oldX = oldX;
+	}
+
+	
 }

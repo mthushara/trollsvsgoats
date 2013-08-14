@@ -65,6 +65,10 @@ public class BadgesScreen extends View {
 
     @Override
     protected Group createIface() {
+    	root.addStyles(Style.BACKGROUND.is(Background
+                .image(getImage("bg_level"))));
+    	topPanel.addStyles(Style.BACKGROUND.is(Background.blank())); //???
+    	
         topPanel.add(new Shim(0, 20));
 
         tiles = new Group(AxisLayout.vertical().gap(TILE_GAP), Style.VALIGN.top);

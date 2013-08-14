@@ -10,14 +10,9 @@ import playn.core.*;
 import playn.core.util.Callback;
 import playn.core.util.Clock;
 import tripleplay.game.ScreenStack;
-import tripleplay.ui.Background;
 import tripleplay.ui.Icon;
 import tripleplay.ui.Icons;
-import tripleplay.ui.Interface;
-import tripleplay.ui.Root;
-import tripleplay.ui.SimpleStyles;
-import tripleplay.ui.Style;
-import tripleplay.ui.layout.AxisLayout;
+import au.edu.unimelb.csse.trollsvsgoats.core.handlers.IPlatformHandler;
 import au.edu.unimelb.csse.trollsvsgoats.core.model.*;
 import au.edu.unimelb.csse.trollsvsgoats.core.view.*;
 
@@ -36,12 +31,12 @@ public class TrollsVsGoatsGame extends Game.Default implements Game {
     private Map<String, Icon>  icons = new HashMap<String, Icon>();
 
     // Views
-    private MainScreen mainScreen;
+    private MainScreenEx mainScreen;
     private LoadingScreen loadScreen;
     private ThemeSelScreen themeSelScreen;
-    private LevelSelScreen levelSelScreen;
+    private LevelSelScreenEx levelSelScreen;
     private MessageBox messageBox;
-    private BadgesScreen badgesScreen;
+    private BadgesScreenEx badgesScreen;
     private OptionScreen optionScreen;
     private HelpScreen helpScreen;
     
@@ -50,17 +45,19 @@ public class TrollsVsGoatsGame extends Game.Default implements Game {
     private static final int UPDATE_PERIOD = 1000 / UPDATE_RATE;
     private final Clock.Source _clock = new Clock.Source(UPDATE_RATE);
     protected float _lastTime;
+    private IPlatformHandler handler;
     //
 
-    public TrollsVsGoatsGame(PersistenceClient persistence) {
+    public TrollsVsGoatsGame(PersistenceClient persistence, IPlatformHandler handler) {
     	super(UPDATE_PERIOD); // call update every 33ms (30 times per second)
         this.persistence = persistence;
+        this.handler = handler;
         this.model = new GameModel();
-        screens = new View[] { mainScreen = new MainScreen(this),
+        screens = new View[] { mainScreen = new MainScreenEx(this),
                 loadScreen = new LoadingScreen(this),
                 themeSelScreen = new ThemeSelScreen(this),
-                levelSelScreen = new LevelSelScreen(this),
-                new LevelScreen(this), badgesScreen = new BadgesScreen(this),
+                levelSelScreen = new LevelSelScreenEx(this),
+                new LevelScreenEx(this), badgesScreen = new BadgesScreenEx(this),
                 optionScreen = new OptionScreen(this),
                 helpScreen = new HelpScreen(this) };
     }
@@ -84,9 +81,11 @@ public class TrollsVsGoatsGame extends Game.Default implements Game {
 
             @Override
             public void done() {
-                //TODO graphics().setSize(model.width, model.height);
             	//http://code.google.com/p/playn/source/detail?spec=svn02ad17652134fc1a47d647a9fec2e72bd7a2134b&r=2ee14ffb17a4935e3db3079fd1bcab45831d9105
-            	//issue with html - graphics().ctx().setSize(model.width, model.height);
+            	if(handler != null)
+            	{
+            		handler.setSize(model.width, model.height);
+            	}
             	
                 stack.replace(mainScreen, ScreenStack.NOOP);
             }
@@ -94,6 +93,7 @@ public class TrollsVsGoatsGame extends Game.Default implements Game {
         for (View screen : screens) {
             if (screen.images() != null) {
                 for (String path : screen.images()) {
+                	System.out.println("images/" + path + ".png");
                     Image image = assets().getImage("images/" + path + ".png");
                     asset.add(image);
                     images.put(path, image);
@@ -115,8 +115,10 @@ public class TrollsVsGoatsGame extends Game.Default implements Game {
     }
 
     public void setScreenSize(int width, int height) {
-        //TODO graphics().setSize(width, height);
-    	//issue with html - graphics().ctx().setSize(width, height);
+    	if(handler != null)
+    	{
+    		handler.setSize(width, height);
+    	}
 
         persistence.persist(model);
     }
@@ -206,7 +208,8 @@ public class TrollsVsGoatsGame extends Game.Default implements Game {
 			@Override
 			public void onSuccess(String result) {
 				game.model().levelStart(index);
-                LevelScreen level = new LevelScreen(game, result);
+                //-> LevelScreen level = new LevelScreen(game, result);
+				LevelScreenEx level = new LevelScreenEx(game, result);
                 if (replace)
                     stack.replace(level, ScreenStack.NOOP);
                 else

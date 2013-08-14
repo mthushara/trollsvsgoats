@@ -62,6 +62,10 @@ public class HelpScreen extends View {
 
     @Override
     protected Group createIface() {
+    	root.addStyles(Style.BACKGROUND.is(Background
+                .image(getImage("bg_level"))));
+    	topPanel.addStyles(Style.BACKGROUND.is(Background.blank()));
+    	
         Group show = null;
         if (currentTab == null || currentTab.equals(gameTab)) {
             currentTab = gameTab;

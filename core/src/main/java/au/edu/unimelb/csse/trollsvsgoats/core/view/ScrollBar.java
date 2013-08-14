@@ -1,6 +1,7 @@
 package au.edu.unimelb.csse.trollsvsgoats.core.view;
 
 import static playn.core.PlayN.mouse;
+import playn.core.Image;
 import playn.core.Mouse;
 import playn.core.Mouse.ButtonEvent;
 import playn.core.Platform;
@@ -34,6 +35,7 @@ public class ScrollBar extends Elements<ScrollBar> {
     protected float draggerHeight;
     protected boolean upButDown;
     protected boolean downButDown;
+    protected Image bgImage;
 
     /**
      * @param view
@@ -155,6 +157,11 @@ public class ScrollBar extends Elements<ScrollBar> {
         this.bgColor = color;
         scroll.addStyles(Style.BACKGROUND.is(Background.solid(color)));
     }
+    
+    public void setBarBackgroundImage(Image bg) {
+        this.bgImage = bg;
+        scroll.addStyles(Style.BACKGROUND.is(Background.image(bg)));
+    }
 
     public void setDraggerColor(int color) {
         this.draggerColor = color;
@@ -201,6 +208,14 @@ public class ScrollBar extends Elements<ScrollBar> {
 
     public Button downButton() {
         return this.downButton;
+    }
+    
+    public Button draggerButton() {
+    	return this.dragger;
+    }
+    
+    public void setdraggerHeight(float height) {
+    	this.draggerHeight = height;
     }
 
     public boolean isUpButtonDown() {

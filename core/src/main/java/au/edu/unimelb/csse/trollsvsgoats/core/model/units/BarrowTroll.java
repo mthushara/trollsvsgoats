@@ -12,7 +12,7 @@ public class BarrowTroll extends Troll {
     @Override
     public void notifyColliedWithFront() {
         this.front().setSpeed(this.speed());
-        this.front().setTimer(this.timer());
+        //--> this.front().setTimer(this.timer());
     }
 
     @Override

@@ -1,10 +1,11 @@
 package au.edu.unimelb.csse.trollsvsgoats.core.model.units;
 
-import tripleplay.ui.Icons;
-import tripleplay.ui.layout.AbsoluteLayout;
+//-->import tripleplay.ui.Icons;
+//-->import tripleplay.ui.layout.AbsoluteLayout;
 
 public abstract class Goat extends Unit {
-
+//-->
+	/*
     @Override
     public void update(float delta) {
         if (state() == null || state().equals(State.REMOVED))
@@ -19,11 +20,6 @@ public abstract class Goat extends Unit {
             	widget().icon.update(Icons.image(pushAnimation.nextFrame(delta)));
         }
     }
-
-    // @Override
-    // public String type() {
-    // String name = this.getClass().getSimpleName();
-    // return name.substring(0, name.indexOf("Goat")).toLowerCase();
-    // }
-
+*/
+  
 }

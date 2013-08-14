@@ -99,7 +99,7 @@ public class LevelScreen extends View {
     @Override
     public Group createIface() {
         root.addStyles(Style.BACKGROUND.is(Background
-                .image(getImage("bg_level"))));
+                .image(getImage("game_bg")))); //->
         topPanel.addStyles(Style.BACKGROUND.is(Background.blank()));
         Group iface = new Group(AxisLayout.vertical().gap(0).offStretch(),
                 Style.HALIGN.center).add(momentLabel = new Label("0")
@@ -123,10 +123,15 @@ public class LevelScreen extends View {
         });
 
         middlePanel = new Group(new AbsoluteLayout());
-        iface.add(new Group(AxisLayout.horizontal()).add(middlePanel)).add(
-                new Shim(0, -35));
+        //->iface.add(new Group(AxisLayout.horizontal()).add(middlePanel)).add(
+        //->                new Shim(0, -35));
 
+        iface.add(new Group(AxisLayout.horizontal()).add(middlePanel)).add(
+                new Shim(0, -175));//-200
+        		
         bottomPanel = new Group(AxisLayout.horizontal(), Style.HALIGN.left);
+        
+        //
         iface.add(bottomPanel).add(
                 new Group(AxisLayout.horizontal(), Style.HALIGN.left)
                         .add(costLabel = new Label("Cost: 0")
@@ -139,20 +144,25 @@ public class LevelScreen extends View {
                         .add(goatInfoLabel = new Label().addStyles(
                                 Style.HALIGN.right).setConstraint(
                                 Constraints.fixedHeight(40)))
-                        .add(new Shim(20, 0)));
+                        .add(new Shim(20, -10)));	//ori -> 20, 0
+        
         trollInfoPanel = new Group(AxisLayout.horizontal().gap(10),
                 Style.VALIGN.top, Style.HALIGN.left).setConstraint(
                 Constraints.fixedWidth(width() / 2 - BUTTON_WIDTH / 2 - 4))
-                .add(new Shim(LEFT_MARGIN, 0));
+                .add(new Shim(LEFT_MARGIN, -50));
+        
         buttonPanel = new Group(AxisLayout.vertical().gap(10),
-                Style.VALIGN.bottom).add(new Shim(0, 15));
+                Style.VALIGN.bottom).add(new Shim(0, 20));
+        
         goatInfoPanel = new Group(AxisLayout.horizontal().gap(10),
                 Style.VALIGN.top, Style.HALIGN.right)
                 .setConstraint(trollInfoPanel.constraint());
+        //
+        
         bottomPanel.add(trollInfoPanel);
         bottomPanel.add(buttonPanel);
         bottomPanel.add(goatInfoPanel);
-
+        
         final Button start = button("START").setConstraint(
                 Constraints.minWidth(BUTTON_WIDTH));
         final Button reset = button("RESET").setConstraint(
@@ -266,7 +276,7 @@ public class LevelScreen extends View {
                     updateTrollInfo(type);
                 }
             });
-
+            
             Group forceMeter, speedMeter;
             table.add(new Group(AxisLayout.vertical().gap(10),
                     Style.HALIGN.left).add(
@@ -413,8 +423,7 @@ public class LevelScreen extends View {
                                 layer.setOrigin(0, moveAnimation.frame(0)
                                         .height());
                                 layer.setDepth(1);
-                                middlePanel.add(AbsoluteLayout.at(
-                                        troll.widget(), _x, _y));
+                                middlePanel.add(AbsoluteLayout.at(troll.widget(), _x, _y));
                                 troll.setParent(middlePanel);
                                 layer.addListener(new Mouse.LayerAdapter() {
 
@@ -482,8 +491,7 @@ public class LevelScreen extends View {
                                 getImage("pivot"));
                         Label pivot = new Label(getIcon("pivot"));
                         pivotLayer.setDepth(2);
-                        middlePanel.add(AbsoluteLayout.at(pivot, x, y
-                                + SQUARE_HEIGHT));
+                        middlePanel.add(AbsoluteLayout.at(pivot, x, y + SQUARE_HEIGHT));
 
                     }
                     break;
@@ -562,7 +570,9 @@ public class LevelScreen extends View {
                 }
 
                 if (image != null) {
-                    tile.icon.update(Icons.image(image));
+                    //->tile.icon.update(Icons.image(image));
+                	tile.icon.update(Icons.image(image));
+                	//->
                     middlePanel.add(AbsoluteLayout.at(tile, x, y));
                 }
 
@@ -635,6 +645,8 @@ public class LevelScreen extends View {
             names.add("goat_" + name);
             names.add("goat_" + name + "_move");
         }
+        //names.add("bg_level");bridges-01
+        names.add("game_bg"); //->
         names.add("bg_level");
         return names.toArray(new String[names.size()]);
     }
@@ -825,7 +837,7 @@ public class LevelScreen extends View {
     }
 
     private float segmentToX(float segment) {
-        return SQUARE_WIDTH * segment;
+    	return SQUARE_WIDTH * segment;
     }
 
     private float laneToY(float lane) {
@@ -980,6 +992,8 @@ public class LevelScreen extends View {
         cost = 0;
         updateCost(0);
     }
+    
+    static float xx = 0;
 
     /**
      * Moves all the units of a lane forward if it's possible, handles collision
@@ -1002,7 +1016,7 @@ public class LevelScreen extends View {
                         unit.setState(State.BLOCKED);
                 }
                 // If a unit can moves.
-                if (unit.updateTimer(delta) <= 0
+                if (unit.updatePosition(delta)
                         && !unit.state().equals(State.BLOCKED)) {
                     // Handles collision.
                     if (adjacent(unit, unit.front())) {
@@ -1017,21 +1031,12 @@ public class LevelScreen extends View {
                             removeUnit(unit.front());
                             removeUnit(unit);
                         }
-                        // Tries to move the previous unit after collision.
-                        else if (!retryUnits.contains(unit.front())
-                                && unit.front() != null
-                                && unit.front().timer() <= 0) {
-                            unit = unit.front();
-                            retryUnits.add(unit);
-                            continue;
-                        }
                     }
                     if (!adjacent(unit, unit.front())
                             || unit.state().equals(State.JUMPING)) {
                         Square s1 = unit.square();
                         // Initialises the front square.
-                        int moveDistance = unit.state().equals(State.JUMPING) ? 2
-                                : 1;
+                        int moveDistance = unit.state().equals(State.JUMPING) ? 2 : 1;
                         Square s2 = new Square(s1.lane(),
                                 s1.segment() < bridgeLocation ? s1.segment()
                                         + moveDistance : s1.segment()
@@ -1040,6 +1045,7 @@ public class LevelScreen extends View {
                         s2.setY(s1.getY());
                         s2.setDistance(s1.distance() - moveDistance);
                         unit.move(s2);
+                        
                         unit.setState(State.MOVING);
                         if (s2.distance() == 1 || adjacent(unit, unit.front())
                                 && unit.front().state().equals(State.PUSHING))
@@ -1069,6 +1075,7 @@ public class LevelScreen extends View {
                 } else
                     unit.setState(State.BLOCKED);
             }
+            
             unit.update(delta);
             unit = unit.back();
         }
@@ -1156,6 +1163,9 @@ public class LevelScreen extends View {
             goatsMoments += updateUnits(goat, delta);
         }
         for (Unit troll : headTrolls.values()) {
+        	
+        	troll.setOldX(troll.square().getX()); //->
+        	
             trollsMoments += updateUnits(troll, delta);
         }
         if (trollsMoments != goatsMoments)

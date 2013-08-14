@@ -21,6 +21,10 @@ public class OptionScreen extends View {
 
     @Override
     protected Group createIface() {
+    	root.addStyles(Style.BACKGROUND.is(Background
+                .image(getImage("bg_level"))));
+    	topPanel.addStyles(Style.BACKGROUND.is(Background.blank()));
+    	
         Group iface = new Group(new TableLayout(COL.alignLeft().fixed(), COL
                 .alignLeft().fixed()).gaps(20, 10));
         String title;
@@ -84,11 +88,7 @@ public class OptionScreen extends View {
                     if (toggle.selected.get()) {
                         toggle.addStyles(Style.BACKGROUND.is(butSelBg));
                         if (width() != stringToWidth(size)) {
-                            //->TODO PlayN.graphics().setSize(stringToWidth(size),
-                            //        stringToHeight(size));
-
-
-                        	game.setScreenSize(stringToWidth(size), stringToHeight(size));
+                            game.setScreenSize(stringToWidth(size), stringToHeight(size));
                             game.refreshMainScreen();
                             game.persist();
                             wasAdded();

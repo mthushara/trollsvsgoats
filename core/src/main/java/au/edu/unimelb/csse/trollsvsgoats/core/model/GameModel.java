@@ -99,6 +99,10 @@ public class GameModel {
         return PlayN.graphics().width();
     }
 
+    public int screenHeight() {
+        return PlayN.graphics().height();
+    }
+    
     public String currentTheme() {
         return themes[themeIndex].toLowerCase();
     }

@@ -1,9 +1,11 @@
 package au.edu.unimelb.csse.trollsvsgoats.core.view;
 
 import react.UnitSlot;
+import tripleplay.ui.Background;
 import tripleplay.ui.Button;
 import tripleplay.ui.Constraints;
 import tripleplay.ui.Group;
+import tripleplay.ui.Style;
 import tripleplay.ui.layout.AxisLayout;
 import au.edu.unimelb.csse.trollsvsgoats.core.TrollsVsGoatsGame;
 
@@ -16,6 +18,10 @@ public class MainScreen extends View {
 
     @Override
     protected Group createIface() {
+    	root.addStyles(Style.BACKGROUND.is(Background
+                .image(getImage("bg_level"))));
+    	topPanel.addStyles(Style.BACKGROUND.is(Background.blank()));
+    	
         back.setVisible(false);
         Group buttons;
         buttons = new Group(AxisLayout.vertical().gap(10));
